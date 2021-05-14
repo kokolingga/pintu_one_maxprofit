@@ -1,7 +1,12 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
+	"io"
+	"io/ioutil"
+	"strconv"
+	"strings"
 )
 
 /*
@@ -59,16 +64,23 @@ func getMaxProfit(prices []int64, pt *profitTracker) int64 {
 	for index := 1; index < len(prices); index++ {
 		if prices[index] < pt.lowestBuyingPrice {
 			fmt.Printf("%20s : %12v\n", "current lowest price", pt.lowestBuyingPrice)
-			fmt.Printf("%20s : %12v\n", "next hour price", prices[index])
+
+			next_hour_price := fmt.Sprintf("hour[%v] price", index)
+
+			fmt.Printf("%20s : %12v\n", next_hour_price, prices[index])
 			fmt.Printf("%s\n", "[it's cheaper. let's buy]")
 			fmt.Printf("%s\n\n", "[marked as the lowest price]")
+
 			pt.lowestBuyingPrice = prices[index]
 			pt.lowestBuyingHour = index
 		}
 
 		if prices[index] > pt.lowestBuyingPrice {
 			fmt.Printf("%20s : %12v\n", "current lowest price", pt.lowestBuyingPrice)
-			fmt.Printf("%20s : %12v\n", "next hour price", prices[index])
+
+			next_hour_price := fmt.Sprintf("hour[%v] price", index)
+
+			fmt.Printf("%20s : %12v\n", next_hour_price, prices[index])
 			fmt.Printf("%s\n", "[a raise. should we sell?]")
 
 			profit_amount := prices[index] - pt.lowestBuyingPrice
@@ -85,17 +97,81 @@ func getMaxProfit(prices []int64, pt *profitTracker) int64 {
 	return pt.maxProfit
 }
 
+func readLines(filename string) ([]string, error) {
+	var lines []string
+
+	file, err := ioutil.ReadFile(filename)
+	if err != nil {
+		return lines, err
+	}
+
+	buf := bytes.NewBuffer(file)
+	for {
+		line, err := buf.ReadString('\n')
+
+		if len(line) == 0 {
+			if err != nil {
+				if err == io.EOF {
+					break
+				}
+				return lines, err
+			}
+		}
+
+		lines = append(lines, line)
+		if err != nil && err != io.EOF {
+			return lines, err
+		}
+	}
+	return lines, nil
+}
+
+func convertLinesToSlice(lines []string) []int64 {
+	var prices []int64
+
+	for _, line := range lines {
+		temp := strings.Split(line, " ")
+
+		for _, value := range temp {
+			price, _ := strconv.ParseInt(value, 10, 64)
+			prices = append(prices, int64(price))
+		}
+	}
+
+	return prices
+}
+
 func main() {
-	var prices = []int64{3, 2, 1, 5, 6, 2}
+	/*
+		filename := "big.txt"
+		lines, err := readLines(filename)
+
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+
+		prices := convertLinesToSlice(lines)
+		fmt.Printf("prices length : %v\n", len(prices))
+		// fmt.Println(prices)
+	*/
+
+	// ==================== //
+
+	// var prices = []int64{3, 2, 1, 5, 6, 2}
 	// var prices = []int64{5, 4, 3, 2, 1}
 	// var prices = []int64{137147048, 102162326, 199268418, 198975474, 253639272, 356694498, 225661554, 315177788, 328486079, 337443096, 279363057}
+
+	// var prices = []int64{10, 20, 30, 90, 50, 60, 5}
+
+	var prices = []int64{10, 20, 30, 80, 5, 15, 85, 10, 2}
 
 	pt := newProfitTracker()
 
 	maxProfit := getMaxProfit(prices, pt)
 
-	fmt.Printf("cheapest Buying : Hour[%v] : %v\n", pt.lowestBuyingHour, pt.lowestBuyingPrice)
-	fmt.Printf("highest Selling : Hour[%v] : %v\n", pt.highestSellingHour, pt.highestSellingPrice)
+	fmt.Printf("latest cheapest Buying : Hour[%v] : %v\n", pt.lowestBuyingHour+1, pt.lowestBuyingPrice)
+	fmt.Printf("highest Selling : Hour[%v] : %v\n", pt.highestSellingHour+1, pt.highestSellingPrice)
 	fmt.Printf("maxProfit : %v\n", pt.maxProfit)
 	fmt.Printf("maxProfit : %v\n", maxProfit)
 }
