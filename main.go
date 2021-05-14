@@ -32,39 +32,63 @@ In this scenario, the maximum profit Jacky can make is: $5, he will buy at 3rd h
 type profit struct {
 	lowestHour  int
 	lowestPrice int64
+	myDecision  decision
 }
 
-func get_max_profit(prices []int64) profit {
+type decision int
 
+const (
+	buying decision = iota
+	selling
+)
+
+func get_max_profit(prices []int64) profit {
 	if len(prices) == 0 {
 		return profit{}
 	}
 
 	// lowest price timing
-	// for initial value, let's take the first element of the map.
-	lowest_price := prices[0]
-	lowest_hour := 0
-	fmt.Println("Initial value : ")
-	fmt.Println("first taking Price : ", lowest_price)
-	fmt.Println("first taking Index : ", lowest_hour)
+	// for initial value, let's take the first element of the slice.
+	lowest_buying_price := prices[0]
+	lowest_buying_hour := 0
+	myDecision := buying
+
+	// fmt.Println("Initial value : ")
+	// fmt.Println("first checking Index : ", lowest_buying_hour)
+	fmt.Println("first checking Price : ", lowest_buying_price)
 	fmt.Println("....................")
 
 	for index := 1; index < len(prices); index++ {
-		if prices[index] < lowest_price && index > lowest_hour {
-			lowest_price = prices[index]
-			lowest_hour = index
+		// index start from 1 (skip the first element)
+		// fmt.Println("current Index : ", index)
+		fmt.Println("current Price : ", prices[index])
+
+		if myDecision == buying {
+			if prices[index] < lowest_buying_price && index > lowest_buying_hour {
+				fmt.Println("ah, it's cheaper. let's buy.")
+				lowest_buying_price = prices[index]
+				lowest_buying_hour = index
+			}
+
+			if prices[index] > lowest_buying_price {
+				fmt.Printf("[lowest price : %v] a raise. should we sell?\n", lowest_buying_price)
+			}
 		}
+		fmt.Println("....................")
+
 	}
 
-	return profit{lowestPrice: lowest_price, lowestHour: lowest_hour}
+	return profit{lowestPrice: lowest_buying_price, lowestHour: lowest_buying_hour, myDecision: myDecision}
 }
 
 func main() {
-	var prices = []int64{3, 2, 1, 5, 6, 2}
+	// var prices = []int64{3, 2, 1, 5, 6, 2}
+	// var prices = []int64{5, 4, 3, 2, 1}
+	var prices = []int64{137147048, 102162326, 199268418, 198975474, 253639272, 356694498, 225661554, 315177788, 328486079, 337443096, 279363057}
 
 	profitData := get_max_profit(prices)
 
 	fmt.Println("Lowest Price : ", profitData.lowestPrice)
 	fmt.Println("Lowest Index : ", profitData.lowestHour)
-
+	fmt.Println("My Decision : ", profitData.myDecision)
 }
