@@ -11,13 +11,6 @@ import (
 	"strings"
 )
 
-type decision int
-
-const (
-	buying decision = iota
-	selling
-)
-
 type profitTracker struct {
 	lowestBuyingHour    int
 	lowestBuyingPrice   int64
