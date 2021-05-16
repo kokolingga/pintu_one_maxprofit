@@ -5,30 +5,11 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
+	"log"
+	"os"
 	"strconv"
 	"strings"
 )
-
-/*
-Example 1:
-Price of bitcoin each hour
-Hour 1: $5
-Hour 2: $4
-Hour 3: $3
-Hour 4: $2
-Hour 5: $1
-In this scenario, the maximum profit Jacky can make is: 0
-
-Example 2:
-Price of bitcoin each hour
-Hour 1: $3
-Hour 2: $2
-Hour 3: $1
-Hour 4: $5
-Hour 5: $6
-Hour 6: $2
-In this scenario, the maximum profit Jacky can make is: $5, he will buy at 3rd hour and sell at 5th hour.
-*/
 
 type decision int
 
@@ -145,8 +126,12 @@ func convertLinesToSlice(lines []string) []int64 {
 }
 
 func main() {
+	if len(os.Args) < 2 {
+		log.Fatal("no file specified")
+	}
 
-	filename := "big.txt"
+	filename := os.Args[1]
+
 	lines, err := readLines(filename)
 
 	if err != nil {
@@ -155,19 +140,6 @@ func main() {
 	}
 
 	prices := convertLinesToSlice(lines)
-	// fmt.Printf("prices length : %v\n", len(prices))
-	// fmt.Println(prices)
-
-	// ==================== //
-
-	// var prices = []int64{3, 2, 1, 5, 6, 2}
-	// var prices = []int64{5, 4, 3, 2, 1}
-	// var prices = []int64{137147048, 102162326, 199268418, 198975474, 253639272, 356694498, 225661554, 315177788, 328486079, 337443096, 279363057}
-
-	// var prices = []int64{10, 20, 30, 90, 50, 60, 5}
-
-	// var prices = []int64{10, 20, 30, 80, 5, 15, 85, 10, 2}
-
 	pt := newProfitTracker()
 
 	maxProfit := getMaxProfit(prices, pt)
